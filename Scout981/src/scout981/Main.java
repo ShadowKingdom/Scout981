@@ -5,25 +5,36 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 
-public class Main implements Runnable {
-	JFrame jFrame;
-	Thread thread;
+import scout981.controller.ControllerInterface;
+
+public class Main extends Thread {
+	public static ControllerInterface ci;
+	
+	private static JFrame jFrame;
 	private static Main instance;
 	private volatile boolean running;
 	
 	public Main() {
+		super("[Scout Client]");
 		if(instance == null) {
+			ci = new ControllerInterface();
 			instance = this;
 			jFrame = new JFrame("Scout 981");
+			jFrame.setBounds(0, 0, 800, 680);
+			jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			jFrame.addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosing(WindowEvent e) {
-					
+					stopApp();
 				}
 			});
 		} else {
 			return;
 		}
+	}
+	
+	public void preInitiatialization() {
+		ci.printControllerLists();
 	}
 
 	public void run() {
@@ -35,30 +46,33 @@ public class Main implements Runnable {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			System.out.println(thread.getName() + "Running...");
+			ci.refreshControllerList();
+			ci.printControllerLists();
+			logInfo("Running...");
 		}
 	}
 	
-	public void start() {
+	public synchronized void start() {
 		if(running) {
 			return;
 		}
 		running = true;
-		thread = new Thread("Scout Client");
-		thread.start();
+		super.start();
 	}
 	
-	public void stop() {
-		if(running) {
-			running = false;
-		}
-		
+	public synchronized void stopApp() {
+		if(running) running = false;
+		System.out.println("Stopping Application...");
 		try {
-			System.out.println(thread.getName() + "Stopping threads...");
-			thread.join();
+			join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		System.exit(0);
+	}
+	
+	public static void logInfo(String message) {
+		System.out.println(Main.getInstance().getName() +" [Info] " + message);
 	}
 	
 	public static Main getInstance() {
@@ -66,6 +80,8 @@ public class Main implements Runnable {
 	}
 	
 	public static void main(String[] args) {
-		
+		Main main = new Main();
+		main.preInitiatialization();
+		main.start();
 	}
 }
