@@ -1,16 +1,12 @@
 package scout981;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
-import javax.swing.JFrame;
-
+import scout981.GUI.WindowFrame;
 import scout981.controller.ControllerInterface;
 
 public class Main extends Thread {
 	public static ControllerInterface ci;
 	
-	private static JFrame jFrame;
+	private static WindowFrame mainWindow;
 	private static Main instance;
 	private volatile boolean running;
 	
@@ -19,15 +15,7 @@ public class Main extends Thread {
 		if(instance == null) {
 			ci = new ControllerInterface();
 			instance = this;
-			jFrame = new JFrame("Scout 981");
-			jFrame.setBounds(0, 0, 800, 680);
-			jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			jFrame.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosing(WindowEvent e) {
-					stopApp();
-				}
-			});
+			mainWindow = new WindowFrame("Scout 981", true);
 		} else {
 			return;
 		}
@@ -38,7 +26,7 @@ public class Main extends Thread {
 	}
 
 	public void run() {
-		jFrame.setVisible(true);
+		mainWindow.setVisible(true);
 		
 		while(running) {
 			try {
@@ -46,7 +34,6 @@ public class Main extends Thread {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			ci.refreshControllerList();
 			ci.printControllerLists();
 			logInfo("Running...");
 		}
@@ -57,6 +44,7 @@ public class Main extends Thread {
 			return;
 		}
 		running = true;
+		mainWindow = new WindowFrame("Scout 981", true);
 		super.start();
 	}
 	
