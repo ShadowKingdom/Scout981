@@ -13,7 +13,6 @@ public class Main extends Thread {
 	public Main() {
 		super("[Scout Client]");
 		if(instance == null) {
-			ci = new ControllerInterface();
 			instance = this;
 			mainWindow = new WindowFrame("Scout 981", true);
 		} else {
@@ -22,9 +21,11 @@ public class Main extends Thread {
 	}
 	
 	public void preInitiatialization() {
-		ci.printControllerLists();
+		ci = new ControllerInterface();
+		ci.printControllerList();
 	}
 
+	@Override
 	public void run() {
 		mainWindow.setVisible(true);
 		
@@ -34,9 +35,13 @@ public class Main extends Thread {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			ci.printControllerLists();
+			update();
 			logInfo("Running...");
 		}
+	}
+	
+	private void update() {
+		ci.printControllerInput();
 	}
 	
 	public synchronized void start() {
